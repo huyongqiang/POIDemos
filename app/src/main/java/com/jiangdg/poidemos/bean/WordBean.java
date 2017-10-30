@@ -9,10 +9,19 @@ import java.util.List;
 
 public class WordBean {
     private WordPropertyBean propertyBean;
-    private WordContentBean contentBean;
     private List<WordBMarkBean> markList;
-    private List<WordCharRunBean> charList;
     private List<WordTableBean> tableList;
+    private List<WordParagraphBean> contentList;
+    private String htmlPath;
+
+    // 文档的所有内容
+    private String wordText;
+    // 文档所有段落的内容
+    private String[] paragraphTexts;
+    // 页眉内容
+    private String headerText;
+    // 页脚内容
+    private String footerText;
 
     // 书签数量
     private int bookMarkCount;
@@ -41,27 +50,27 @@ public class WordBean {
         this.propertyBean = propertyBean;
     }
 
-    public WordContentBean getContentBean() {
-        return contentBean;
-    }
-
-    public void setContentBean(WordContentBean contentBean) {
-        this.contentBean = contentBean;
-    }
-
-    public List<WordCharRunBean> getCharList() {
-        return charList;
-    }
-
-    public void setCharList(List<WordCharRunBean> charList) {
-        this.charList = charList;
-    }
-
     public List<WordTableBean> getTableList() {
         return tableList;
     }
 
     public void setTableList(List<WordTableBean> tableList) {
         this.tableList = tableList;
+    }
+
+    public String getHtmlPath() {
+        return htmlPath;
+    }
+
+    public void setHtmlPath(String htmlPath) {
+        this.htmlPath = htmlPath;
+    }
+
+    public List<WordParagraphBean> getParagraphList() {
+        return contentList;
+    }
+
+    public void setParagraphList(List<WordParagraphBean> contentList) {
+        this.contentList = contentList;
     }
 }
