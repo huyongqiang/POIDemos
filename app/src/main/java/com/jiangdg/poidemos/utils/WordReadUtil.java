@@ -1,12 +1,10 @@
 package com.jiangdg.poidemos.utils;
 
 import android.os.Environment;
-import android.webkit.WebView;
 
-import com.jiangdg.poidemos.bean.WordBean;
-import com.jiangdg.poidemos.bean.WordCharRunBean;
-import com.jiangdg.poidemos.bean.WordParagraphBean;
-import com.jiangdg.poidemos.bean.WordTableBean;
+import com.jiangdg.poidemos.bean.word.WordBean;
+import com.jiangdg.poidemos.bean.word.WordCharRunBean;
+import com.jiangdg.poidemos.bean.word.WordParagraphBean;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.CharacterRun;
@@ -18,12 +16,18 @@ import org.apache.poi.hwpf.usermodel.TableCell;
 import org.apache.poi.hwpf.usermodel.TableIterator;
 import org.apache.poi.hwpf.usermodel.TableRow;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.xwpf.usermodel.XWPFComment;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +38,7 @@ import java.util.List;
  */
 
 public class WordReadUtil {
-    public static final String htmlPath = Environment.getExternalStorageDirectory().getAbsoluteFile() + File.separator + "123.html";
+    public static final String path = Environment.getExternalStorageDirectory().getAbsoluteFile() + File.separator + "123.html";
     private static final String SUFFIX_DOC = ".doc";
     private static final String SUFFIX_DICX = ".docx";
     private int presentPicture = 0;
@@ -54,7 +58,7 @@ public class WordReadUtil {
     public WordBean readDoc2Html(String wordPath) {
         WordBean wordBean = null;
         try {
-            output = new FileOutputStream(htmlPath);
+            output = new FileOutputStream(path);
             // html文件开始标签
             output.write(Contants.htmlBegin.getBytes());
             // 解析doc或docx文件
@@ -76,9 +80,10 @@ public class WordReadUtil {
 
     private WordBean readDoc(String path) {
         WordBean wordBean = new WordBean();
+        InputStream fis = null;
         try {
             // 实例化HWPFDocument
-            FileInputStream fis = new FileInputStream(path);
+            fis = new FileInputStream(path);
             POIFSFileSystem poiFs = new POIFSFileSystem(fis);
             HWPFDocument hwpfDoc = new HWPFDocument(poiFs);
             // 整个文档为一个range，读取当中的所有图片和段落
@@ -99,16 +104,15 @@ public class WordReadUtil {
                     }
                     List<WordCharRunBean> charRuns = readParagraphContext(paragraph);
                     paragraphBean.setCharList(charRuns);
-                    paragraphList.add(paragraphBean);
+                    paragraphBean.setTable(false);
                     if(output != null){
                         output.write(Contants.lineEnd.getBytes());
                     }
                 } else {
+                    paragraphBean.setTable(true);
+                    // 按行解析一个表格
                     int temp = i;
                     if(tableIterator.hasNext()){
-                        // 按行解析一个表格
-                        WordTableBean bean = new WordTableBean();
-
                         Table table = tableIterator.next();
                         if(output != null) {
                             output.write(Contants.tableBegin.getBytes());
@@ -137,7 +141,7 @@ public class WordReadUtil {
                                     if(output != null) {
                                         output.write(Contants.lineBegin.getBytes());
                                     }
-                                    readParagraphContext(p1);
+                                    List<WordCharRunBean> charRunList = readParagraphContext(p1);
                                     if(output != null) {
                                         output.write(Contants.lineEnd.getBytes());
                                     }
@@ -158,18 +162,75 @@ public class WordReadUtil {
                     }
                     i = temp;
                 }
+                paragraphList.add(paragraphBean);
             }
             wordBean.setParagraphList(paragraphList);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            if(fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return wordBean;
     }
 
-    private WordBean readDocx(String path) {
+    private WordBean readDocx(String docxPath) {
         WordBean wordBean = new WordBean();
+        InputStream fis = null;
+        try {
+            fis = new FileInputStream(docxPath);
+            XWPFDocument docx = new XWPFDocument(fis);
+            List<WordParagraphBean> paraBeanList = new ArrayList<>();
+            /**
+             * 遍历所有段落
+             * */
+            List<XWPFParagraph> paras = docx.getParagraphs();
+            for(XWPFParagraph paragraph : paras) {
+                WordParagraphBean paragraphBean = new WordParagraphBean();
+                List<WordCharRunBean> charRunBeanList = new ArrayList<>();
+
+                // 读取该段所有具有相同属性的内容
+                List<XWPFRun> runList = paragraph.getRuns();
+                for (XWPFRun run : runList) {
+                    WordCharRunBean charBean = new WordCharRunBean();
+                    charBean.setText(run.text());         // 文本内容
+                    charBean.setTextFrontSize(run.getFontSize());  // 文本字体大小
+                    charBean.setTextFrontName(run.getFontName());  // 文本字体名称
+                    charBean.setTextColorForDocx(run.getColor());     // 文本颜色
+                    charBean.setBold(run.isBold());     // 粗体
+                    charBean.setItalic(run.isItalic()); // 倾斜
+                    charBean.setHighlighted(run.isHighlighted());// 高亮
+                    charRunBeanList.add(charBean);
+                }
+                paragraphBean.setCharList(charRunBeanList);
+                paraBeanList.add(paragraphBean);
+            }
+            wordBean.setParagraphList(paraBeanList);
+            /**
+             * 遍历所有表格
+             * */
+            List<XWPFTable> tables = docx.getTables();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return wordBean;
     }
 
@@ -191,7 +252,7 @@ public class WordReadUtil {
                         byte[] picBytes = picList.get(presentPicture).getContent();
                         charBean.setPicBytes(picBytes);
                         if (output != null) {
-                            String picPath = FileUtil.createFile("html", FileUtil.getFileName(htmlPath) + presentPicture + ".jpg");
+                            String picPath = FileUtil.createFile("html", FileUtil.getFileName(path) + presentPicture + ".jpg");
                             FileUtil.writePicture(picPath, picBytes);
                             String imageString = String.format(Contants.imgBegin, picPath);
                             output.write(imageString.getBytes());
@@ -211,7 +272,7 @@ public class WordReadUtil {
                         charBean.setText(text);         // 文本内容
                         charBean.setTextFrontSize(run.getFontSize());  // 文本字体大小
                         charBean.setTextFrontName(run.getFontName());  // 文本字体名称
-                        charBean.setTextColor(run.getColor());     // 文本颜色
+                        charBean.setTextColorForDoc(run.getColor());     // 文本颜色
                         charBean.setTextHlightedColor(run.getHighlightedColor());  // 文本高亮颜色
                         charBean.setBold(run.isBold());     // 粗体
                         charBean.setItalic(run.isItalic()); // 倾斜

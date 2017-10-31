@@ -7,13 +7,11 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.jiangdg.poidemos.bean.WordBean;
-import com.jiangdg.poidemos.bean.WordCharRunBean;
-import com.jiangdg.poidemos.bean.WordParagraphBean;
+import com.jiangdg.poidemos.bean.word.WordBean;
+import com.jiangdg.poidemos.bean.word.WordCharRunBean;
+import com.jiangdg.poidemos.bean.word.WordParagraphBean;
 import com.jiangdg.poidemos.utils.WordReadUtil;
-import com.jiangdg.poidemos.utils.WordReadUtil2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,15 +47,13 @@ public class MainActivity extends AppCompatActivity {
         int vId = view.getId();
         switch (vId) {
             case R.id.btn_read_word:
-//                WordReadUtil2 wu = new WordReadUtil2(path);
-//                mWebView.loadUrl("file:///" + wu.htmlPath);
                 WordReadUtil wordReadUtil = new WordReadUtil();
                 String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
-                        + "test.doc";
-                WordBean wordBean = wordReadUtil.readDoc2Html(path);
+                        + "test.docx";
+//                WordBean wordBean = wordReadUtil.readDoc2Html(path);
+//                mWebView.loadUrl("file:///" +WordReadUtil.path);
 
-                mWebView.loadUrl("file:///" +WordReadUtil.htmlPath);
-
+                WordBean wordBean = wordReadUtil.readDocDocument(path);
                 List<WordParagraphBean> paragraphList = wordBean.getParagraphList();
                 if (paragraphList == null || paragraphList.size() == 0) {
                     Log.i("dd", "解析doc失败");

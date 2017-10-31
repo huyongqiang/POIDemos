@@ -1,4 +1,4 @@
-package com.jiangdg.poidemos.bean;
+package com.jiangdg.poidemos.bean.word;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import java.util.List;
 
 public class WordParagraphBean {
     private List<WordCharRunBean> charList;
+    private boolean isTable;
 
     public List<WordCharRunBean> getCharList() {
         return charList;
@@ -16,5 +17,13 @@ public class WordParagraphBean {
 
     public void setCharList(List<WordCharRunBean> charList) {
         this.charList = charList;
+    }
+
+    public boolean isTable() {
+        return isTable;
+    }
+
+    public void setTable(boolean table) {
+        isTable = table;
     }
 }

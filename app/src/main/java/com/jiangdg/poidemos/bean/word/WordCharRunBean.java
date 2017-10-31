@@ -1,4 +1,4 @@
-package com.jiangdg.poidemos.bean;
+package com.jiangdg.poidemos.bean.word;
 
 /** 一段具有相同属性内容实体
  *
@@ -13,7 +13,8 @@ public class WordCharRunBean {
     private String text;
     private int textFrontSize;
     private String textFrontName;
-    private int textColor;
+    private int textColorForDoc;
+    private String textColorForDocx;
     private byte textHlightedColor;
     private boolean isBold;
     private boolean isItalic;
@@ -76,14 +77,6 @@ public class WordCharRunBean {
         this.textFrontName = textFrontName;
     }
 
-    public int getTextColor() {
-        return textColor;
-    }
-
-    public void setTextColor(int textColor) {
-        this.textColor = textColor;
-    }
-
     public byte getTextHlightedColor() {
         return textHlightedColor;
     }
@@ -122,5 +115,21 @@ public class WordCharRunBean {
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
+    }
+
+    public int getTextColorForDoc() {
+        return textColorForDoc;
+    }
+
+    public void setTextColorForDoc(int textColorForDoc) {
+        this.textColorForDoc = textColorForDoc;
+    }
+
+    public String getTextColorForDocx() {
+        return textColorForDocx;
+    }
+
+    public void setTextColorForDocx(String textColorForDocx) {
+        this.textColorForDocx = textColorForDocx;
     }
 }
