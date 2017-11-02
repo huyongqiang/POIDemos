@@ -1,4 +1,4 @@
-package com.jiangdg.poidemos;
+package com.jiangdg.poidemos.view;
 
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
 
+import com.jiangdg.poidemos.R;
 import com.jiangdg.poidemos.bean.word.WordBean;
 import com.jiangdg.poidemos.bean.word.WordCharRunBean;
 import com.jiangdg.poidemos.bean.word.WordParagraphBean;
@@ -28,7 +29,7 @@ import butterknife.OnClick;
  * XWPFWordExtractor
  * XWPFDocument
  */
-public class MainActivity extends AppCompatActivity {
+public class PoiMainActivity extends AppCompatActivity {
     @BindView(R.id.btn_read_word)
     Button mBtnReadDoc;
     @BindView(R.id.webview_display_result)

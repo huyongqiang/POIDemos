@@ -1,4 +1,4 @@
-package com.jiangdg.poidemos;
+package com.jiangdg.poidemos.application;
 
 import android.support.multidex.MultiDexApplication;
 
@@ -7,7 +7,7 @@ import android.support.multidex.MultiDexApplication;
  * Created by jianddongguo on 2017/10/26.
  */
 
-public class MyApplication extends MultiDexApplication{
+public class PoiApplication extends MultiDexApplication{
     @Override
     public void onCreate() {
         super.onCreate();

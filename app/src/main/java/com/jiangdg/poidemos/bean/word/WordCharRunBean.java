@@ -6,6 +6,9 @@ package com.jiangdg.poidemos.bean.word;
  */
 
 public class WordCharRunBean {
+    // 字段类型(如作者、标题、期刊等)
+    private String type;
+
     private int whichParagraph;
     private int whichRunOfPara;
     private byte[] spaceBytes;
@@ -20,6 +23,14 @@ public class WordCharRunBean {
     private boolean isItalic;
     private boolean isData;
     private boolean isHighlighted;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public byte[] getPicBytes() {
         return picBytes;
