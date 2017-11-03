@@ -50,8 +50,4 @@ dependencies {
     compile files('libs/poi-ooxml-schemas-3.17.jar')
     compile files('libs/poi-scratchpad-3.17.jar')
     compile files('libs/xmlbeans.jar')
-    compile files('libs/commons-collections4-4.1.jar')
-    compile files('libs/curvesapi-1.04.jar')
-    compile files('libs/commons-codec-1.10.jar')
-    compile files('libs/commons-logging-1.2.jar')
 }
