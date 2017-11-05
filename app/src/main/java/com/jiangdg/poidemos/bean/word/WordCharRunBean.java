@@ -1,68 +1,21 @@
 package com.jiangdg.poidemos.bean.word;
 
-/** 一段具有相同属性内容实体
+/** 具有相同属性的一段内容
  *
- * Created by jiangdongguo on 2017/10/27.
+ * Created by jianddongguo on 2017/11/5.
  */
 
 public class WordCharRunBean {
-    // 字段类型(如作者、标题、期刊等)
-    private String type;
-
-    private int whichParagraph;
-    private int whichRunOfPara;
-    private byte[] spaceBytes;
-    private byte[] picBytes;
-    private String text;
-    private int textFrontSize;
-    private String textFrontName;
-    private int textColorForDoc;
-    private String textColorForDocx;
-    private byte textHlightedColor;
-    private boolean isBold;
-    private boolean isItalic;
-    private boolean isData;
-    private boolean isHighlighted;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public byte[] getPicBytes() {
-        return picBytes;
-    }
-
-    public void setPicBytes(byte[] picBytes) {
-        this.picBytes = picBytes;
-    }
-
-    public byte[] getSpaceBytes() {
-        return spaceBytes;
-    }
-
-    public void setSpaceBytes(byte[] spaceBytes) {
-        this.spaceBytes = spaceBytes;
-    }
-
-    public int getWhichParagraph() {
-        return whichParagraph;
-    }
-
-    public void setWhichParagraph(int whichParagraph) {
-        this.whichParagraph = whichParagraph;
-    }
-
-    public int getWhichRunOfPara() {
-        return whichRunOfPara;
-    }
-
-    public void setWhichRunOfPara(int whichRunOfPara) {
-        this.whichRunOfPara = whichRunOfPara;
-    }
+    private String text;      // 文本内容
+    private boolean isTable ; // 表格
+    private int textSize ; // 文字大小
+    private String textColor; // 文字颜色
+    private boolean isCenter; // 居中对齐
+    private boolean isRight; // 靠右对齐
+    private boolean isItalic; // 斜体
+    private boolean isUnderline; // 下划线
+    private boolean isBold; // 加粗
+    private boolean isRegion; // 在那个区域中
 
     public String getText() {
         return text;
@@ -72,36 +25,44 @@ public class WordCharRunBean {
         this.text = text;
     }
 
-    public int getTextFrontSize() {
-        return textFrontSize;
+    public boolean isTable() {
+        return isTable;
     }
 
-    public void setTextFrontSize(int textFrontSize) {
-        this.textFrontSize = textFrontSize;
+    public void setTable(boolean table) {
+        isTable = table;
     }
 
-    public String getTextFrontName() {
-        return textFrontName;
+    public int getTextSize() {
+        return textSize;
     }
 
-    public void setTextFrontName(String textFrontName) {
-        this.textFrontName = textFrontName;
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
     }
 
-    public byte getTextHlightedColor() {
-        return textHlightedColor;
+    public String getTextColor() {
+        return textColor;
     }
 
-    public void setTextHlightedColor(byte textHlightedColor) {
-        this.textHlightedColor = textHlightedColor;
+    public void setTextColor(String textColor) {
+        this.textColor = textColor;
     }
 
-    public boolean isBold() {
-        return isBold;
+    public boolean isCenter() {
+        return isCenter;
     }
 
-    public void setBold(boolean bold) {
-        isBold = bold;
+    public void setCenter(boolean center) {
+        isCenter = center;
+    }
+
+    public boolean isRight() {
+        return isRight;
+    }
+
+    public void setRight(boolean right) {
+        isRight = right;
     }
 
     public boolean isItalic() {
@@ -112,35 +73,27 @@ public class WordCharRunBean {
         isItalic = italic;
     }
 
-    public boolean isData() {
-        return isData;
+    public boolean isUnderline() {
+        return isUnderline;
     }
 
-    public void setData(boolean data) {
-        isData = data;
+    public void setUnderline(boolean underline) {
+        isUnderline = underline;
     }
 
-    public boolean isHighlighted() {
-        return isHighlighted;
+    public boolean isBold() {
+        return isBold;
     }
 
-    public void setHighlighted(boolean highlighted) {
-        isHighlighted = highlighted;
+    public void setBold(boolean bold) {
+        isBold = bold;
     }
 
-    public int getTextColorForDoc() {
-        return textColorForDoc;
+    public boolean isRegion() {
+        return isRegion;
     }
 
-    public void setTextColorForDoc(int textColorForDoc) {
-        this.textColorForDoc = textColorForDoc;
-    }
-
-    public String getTextColorForDocx() {
-        return textColorForDocx;
-    }
-
-    public void setTextColorForDocx(String textColorForDocx) {
-        this.textColorForDocx = textColorForDocx;
+    public void setRegion(boolean region) {
+        isRegion = region;
     }
 }

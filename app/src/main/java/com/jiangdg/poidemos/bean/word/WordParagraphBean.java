@@ -8,14 +8,14 @@ import java.util.List;
  */
 
 public class WordParagraphBean {
-    private List<WordCharRunBean> charList;
+    private List<WordCharRunBean2> charList;
     private boolean isTable;
 
-    public List<WordCharRunBean> getCharList() {
+    public List<WordCharRunBean2> getCharList() {
         return charList;
     }
 
-    public void setCharList(List<WordCharRunBean> charList) {
+    public void setCharList(List<WordCharRunBean2> charList) {
         this.charList = charList;
     }
 
