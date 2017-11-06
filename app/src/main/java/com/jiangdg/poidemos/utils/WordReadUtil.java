@@ -3,7 +3,7 @@ package com.jiangdg.poidemos.utils;
 import android.os.Environment;
 
 import com.jiangdg.poidemos.bean.word.WordBean;
-import com.jiangdg.poidemos.bean.word.WordCharRunBean;
+import com.jiangdg.poidemos.bean.word.WordCharRunBean2;
 import com.jiangdg.poidemos.bean.word.WordParagraphBean;
 
 import org.apache.poi.hwpf.HWPFDocument;
@@ -101,7 +101,7 @@ public class WordReadUtil {
                     if(output != null){
                         output.write(Contants.lineBegin.getBytes());
                     }
-                    List<WordCharRunBean> charRuns = readParagraphContext(paragraph);
+                    List<WordCharRunBean2> charRuns = readParagraphContext(paragraph);
                     paragraphBean.setCharList(charRuns);
                     paragraphBean.setTable(false);
                     if(output != null){
@@ -140,7 +140,7 @@ public class WordReadUtil {
                                     if(output != null) {
                                         output.write(Contants.lineBegin.getBytes());
                                     }
-                                    List<WordCharRunBean> charRunList = readParagraphContext(p1);
+                                    List<WordCharRunBean2> charRunList = readParagraphContext(p1);
                                     if(output != null) {
                                         output.write(Contants.lineEnd.getBytes());
                                     }
@@ -193,12 +193,12 @@ public class WordReadUtil {
             List<XWPFParagraph> paras = docx.getParagraphs();
             for(XWPFParagraph paragraph : paras) {
                 WordParagraphBean paragraphBean = new WordParagraphBean();
-                List<WordCharRunBean> charRunBeanList = new ArrayList<>();
+                List<WordCharRunBean2> charRunBeanList = new ArrayList<>();
 
                 // 读取该段所有具有相同属性的内容
                 List<XWPFRun> runList = paragraph.getRuns();
                 for (XWPFRun run : runList) {
-                    WordCharRunBean charBean = new WordCharRunBean();
+                    WordCharRunBean2 charBean = new WordCharRunBean2();
                     charBean.setText(run.text());         // 文本内容
                     charBean.setTextFrontSize(run.getFontSize());  // 文本字体大小
                     charBean.setTextFrontName(run.getFontName());  // 文本字体名称
@@ -236,11 +236,11 @@ public class WordReadUtil {
     /**
      * 读取某一个段落的所有内容
      */
-    private List<WordCharRunBean> readParagraphContext(Paragraph paragraph) {
-        List<WordCharRunBean> charRunList = new ArrayList<>();
+    private List<WordCharRunBean2> readParagraphContext(Paragraph paragraph) {
+        List<WordCharRunBean2> charRunList = new ArrayList<>();
         int numCharRun = paragraph.numCharacterRuns();
         for (int i = 0; i < numCharRun; i++) {
-            WordCharRunBean charBean = new WordCharRunBean();
+            WordCharRunBean2 charBean = new WordCharRunBean2();
             charBean.setWhichRunOfPara(i);
             // 获取一段相同属性内容
             // 判断是图片，还是文本
