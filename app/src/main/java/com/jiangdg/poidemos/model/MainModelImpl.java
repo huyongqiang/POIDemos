@@ -83,13 +83,14 @@ public class MainModelImpl implements IMainModel {
 
             while (event_type != XmlPullParser.END_DOCUMENT) {
                 WordCharRunBean runBean = null;
-                if (isEnter) {
-                    runBean = new WordCharRunBean();
-                }
+
 
                 switch (event_type) {
                     case XmlPullParser.START_TAG: // 开始标签
                         String tagBegin = xmlParser.getName();
+                        if (isEnter && !tagBegin.equals("r")) {
+                            runBean = new WordCharRunBean();
+                        }
                         if (isEnter && tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
                             String align = xmlParser.getAttributeValue(0);
                             if (align.equals("center")) {
@@ -122,6 +123,7 @@ public class MainModelImpl implements IMainModel {
                             if (isEnter) {
                                 runBean.setText(text);
                             }
+                            // 整个文档中，根据"参考文献"标志找到参考文献部分
                             if ("参考文献：".equals(text)) {
                                 isEnter = true;
                             }
