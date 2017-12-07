@@ -7,15 +7,21 @@ package com.jiangdg.poidemos.bean.word;
 
 public class WordCharRunBean {
     private String text;      // 文本内容
-    private boolean isTable ; // 表格
-    private int textSize ; // 文字大小
-    private String textColor; // 文字颜色
-    private boolean isCenter; // 居中对齐
-    private boolean isRight; // 靠右对齐
-    private boolean isItalic; // 斜体
-    private boolean isUnderline; // 下划线
-    private boolean isBold; // 加粗
-    private boolean isRegion; // 在那个区域中
+    private byte[] boldBegin;
+    private byte[] boldEnd;
+    private byte[] italicBegin;
+    private byte[] italicEnd;
+    private byte[] underlineBegin;
+    private byte[] underlineEnd;
+//    private boolean isTable ; // 表格
+//    private int textSize ; // 文字大小
+//    private String textColor; // 文字颜色
+//    private boolean isCenter; // 居中对齐
+//    private boolean isRight; // 靠右对齐
+//    private boolean isItalic; // 斜体
+//    private boolean isUnderline; // 下划线
+//    private boolean isBold; // 加粗
+//    private boolean isRegion; // 在那个区域中
 
     public String getText() {
         return text;
@@ -25,75 +31,51 @@ public class WordCharRunBean {
         this.text = text;
     }
 
-    public boolean isTable() {
-        return isTable;
+    public byte[] getBoldBegin() {
+        return boldBegin;
     }
 
-    public void setTable(boolean table) {
-        isTable = table;
+    public void setBoldBegin(byte[] boldBegin) {
+        this.boldBegin = boldBegin;
     }
 
-    public int getTextSize() {
-        return textSize;
+    public byte[] getBoldEnd() {
+        return boldEnd;
     }
 
-    public void setTextSize(int textSize) {
-        this.textSize = textSize;
+    public void setBoldEnd(byte[] boldEnd) {
+        this.boldEnd = boldEnd;
     }
 
-    public String getTextColor() {
-        return textColor;
+    public byte[] getItalicBegin() {
+        return italicBegin;
     }
 
-    public void setTextColor(String textColor) {
-        this.textColor = textColor;
+    public void setItalicBegin(byte[] italicBegin) {
+        this.italicBegin = italicBegin;
     }
 
-    public boolean isCenter() {
-        return isCenter;
+    public byte[] getItalicEnd() {
+        return italicEnd;
     }
 
-    public void setCenter(boolean center) {
-        isCenter = center;
+    public void setItalicEnd(byte[] italicEnd) {
+        this.italicEnd = italicEnd;
     }
 
-    public boolean isRight() {
-        return isRight;
+    public byte[] getUnderlineBegin() {
+        return underlineBegin;
     }
 
-    public void setRight(boolean right) {
-        isRight = right;
+    public void setUnderlineBegin(byte[] underlineBegin) {
+        this.underlineBegin = underlineBegin;
     }
 
-    public boolean isItalic() {
-        return isItalic;
+    public byte[] getUnderlineEnd() {
+        return underlineEnd;
     }
 
-    public void setItalic(boolean italic) {
-        isItalic = italic;
-    }
-
-    public boolean isUnderline() {
-        return isUnderline;
-    }
-
-    public void setUnderline(boolean underline) {
-        isUnderline = underline;
-    }
-
-    public boolean isBold() {
-        return isBold;
-    }
-
-    public void setBold(boolean bold) {
-        isBold = bold;
-    }
-
-    public boolean isRegion() {
-        return isRegion;
-    }
-
-    public void setRegion(boolean region) {
-        isRegion = region;
+    public void setUnderlineEnd(byte[] underlineEnd) {
+        this.underlineEnd = underlineEnd;
     }
 }

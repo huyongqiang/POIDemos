@@ -4,6 +4,7 @@ import android.util.Xml;
 
 import com.jiangdg.poidemos.bean.word.WordCharRunBean;
 import com.jiangdg.poidemos.bean.word.WordReferenceBean;
+import com.jiangdg.poidemos.utils.Contants;
 import com.jiangdg.poidemos.utils.FileUtil;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -83,51 +84,48 @@ public class MainModelImpl implements IMainModel {
 
             while (event_type != XmlPullParser.END_DOCUMENT) {
                 WordCharRunBean runBean = null;
-
-
                 switch (event_type) {
                     case XmlPullParser.START_TAG: // 开始标签
                         String tagBegin = xmlParser.getName();
-                        if (isEnter && !tagBegin.equals("r")) {
-                            runBean = new WordCharRunBean();
-                        }
-                        if (isEnter && tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
-                            String align = xmlParser.getAttributeValue(0);
-                            if (align.equals("center")) {
-                                runBean.setCenter(true);
-                            }
-                            if (align.equals("right")) {
-                                runBean.setRight(true);
-                            }
-                        }
-                        if (isEnter && tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
-                            String color = xmlParser.getAttributeValue(0);
-                            runBean.setTextColor(color);
-                        }
-                        if (isEnter && tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
-                            int size = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
-                            runBean.setTextSize(size);
-                        }
-                        if (isEnter && tagBegin.equalsIgnoreCase("b")) { // 检测到加粗
-                            runBean.setBold(true);
-                        }
-                        if (isEnter && tagBegin.equalsIgnoreCase("u")) { // 检测到下划线
-                            runBean.setUnderline(true);
-                        }
-                        if (isEnter && tagBegin.equalsIgnoreCase("i")) { // 检测到斜体
-                            runBean.setItalic(true);
-                        }
+
+//                        if (isEnter && tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
+//                            String align = xmlParser.getAttributeValue(0);
+//                            if (align.equals("center")) {
+//                                runBean.setCenter(true);
+//                            }
+//                            if (align.equals("right")) {
+//                                runBean.setRight(true);
+//                            }
+//                        }
+//                        if (isEnter && tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
+//                            String color = xmlParser.getAttributeValue(0);
+//                            runBean.setTextColor(color);
+//                        }
+//                        if (isEnter && tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
+//                            int size = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
+//                            runBean.setTextSize(size);
+//                        }
+//                        if (isEnter && tagBegin.equalsIgnoreCase("b")) { // 检测到加粗
+//                            runBean.setBold(true);
+//                        }
+//                        if (isEnter && tagBegin.equalsIgnoreCase("u")) { // 检测到下划线
+//                            runBean.setUnderline(true);
+//                        }
+//                        if (isEnter && tagBegin.equalsIgnoreCase("i")) { // 检测到斜体
+//                            runBean.setItalic(true);
+//                        }
                         // 检测到文本
-                        if (tagBegin.equalsIgnoreCase("t")) {
-                            String text = xmlParser.nextText();
-                            if (isEnter) {
-                                runBean.setText(text);
-                            }
-                            // 整个文档中，根据"参考文献"标志找到参考文献部分
-                            if ("参考文献：".equals(text)) {
-                                isEnter = true;
-                            }
-                        }
+//                        if (tagBegin.equalsIgnoreCase("t")) {
+//                            runBean = new WordCharRunBean();
+//                            String text = xmlParser.nextText();
+//                            if (isEnter) {
+//                                runBean.setText(text);
+//                            }
+//                            // 整个文档中，根据"参考文献"标志找到参考文献部分
+//                            if ("参考文献：".equals(text)) {
+//                                isEnter = true;
+//                            }
+//                        }
                         break;
                     // 结束标签
                     case XmlPullParser.END_TAG:

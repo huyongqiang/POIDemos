@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.jiangdg.poidemos.R;
 import com.jiangdg.poidemos.bean.word.WordCharRunBean;
 import com.jiangdg.poidemos.presenter.MainPresenter;
+import com.jiangdg.poidemos.utils.WordReadUtil2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -64,55 +65,10 @@ public class PoiMainActivity extends AppCompatActivity implements IMainView {
         int vId = view.getId();
         switch (vId) {
             case R.id.btn_read_word:
-                if (mPresenter != null) {
-                    mPresenter.fetchData();
-                }
-//                WordReadUtil wordReadUtil = new WordReadUtil();
-//                String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
-//                        + "test.docx";
-//                WordBean wordBean = wordReadUtil.readDoc2Html(path);
-//                mWebView.loadUrl("file:///" +WordReadUtil.path);
-
-//                WordBean wordBean = wordReadUtil.readDocDocument(path);
-//                List<WordParagraphBean> paragraphList = wordBean.getParagraphList();
-//                if (paragraphList == null || paragraphList.size() == 0) {
-//                    Log.i("dd", "解析doc失败");
-//                    return;
+//                if (mPresenter != null) {
+//                    mPresenter.fetchData();
 //                }
-//
-//                int paragraphSize = paragraphList.size();
-//                StringBuilder sb = new StringBuilder();
-//                for (int i = 0; i < paragraphSize; i++) {
-//                    List<WordCharRunBean> charList = paragraphList.get(i).getCharList();
-//                    for(WordCharRunBean bean: charList){
-//                        if(bean.getText() != null) {
-//                            if(bean.getText() == "\r") {
-//                                sb.append("\n");
-//                            } else {
-//                                sb.append(bean.getText());
-//                            }
-//                        }
-//                    }
-//
-//                }
-//                FileOutputStream fos = null;
-//                try {
-//                    fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsoluteFile()+File.separator+"123.txt");
-//                    fos.write(sb.toString().getBytes());
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }finally {
-//                    if(fos != null){
-//                        try {
-//                            fos.close();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//                Log.i("ddd",sb.toString());
+                new WordReadUtil2(wordPath);
                 break;
             default:
                 break;
@@ -157,27 +113,31 @@ public class PoiMainActivity extends AppCompatActivity implements IMainView {
 
             String text = bean.getText();
             try {
-
-                if (bean.isBold()) { // 加粗
-                    output.write(boldBegin.getBytes());
+                byte[] boldBegin = bean.getBoldBegin();
+                if (boldBegin!=null && boldBegin.length != 0) {
+                    output.write(boldBegin);
                 }
-//                if (bean.isUnderline()) { // 检测到下划线，输入<u>
-                    output.write(underlineBegin.getBytes());
-//                }
-                if (bean.isItalic()) { // 检测到斜体，输入<i>
-                    output.write(italicBegin.getBytes());
+                byte[] italicBegin = bean.getItalicBegin();
+                if (italicBegin!=null && italicBegin.length != 0) {
+                    output.write(italicBegin);
+                }
+                byte[] underlineBegin = bean.getUnderlineBegin();
+                if (underlineBegin!=null && underlineBegin.length != 0) {
+                    output.write(underlineBegin);
                 }
                 output.write(text.getBytes()); // 写入文本
-                if (bean.isBold()) { // 输入斜体结束标签</i>
-                    output.write(italicEnd.getBytes());
+                byte[] boldEnd = bean.getBoldEnd();
+                if (boldEnd!=null && boldEnd.length != 0) {
+                    output.write(boldEnd);
                 }
-//                if (bean.isUnderline()) { // 输入下划线结束标签</u>
-                    output.write(underlineEnd.getBytes());
-//                }
-                if (bean.isItalic()) { // 输入加粗结束标签</b>
-                    output.write(boldEnd.getBytes());
+                byte[] italicEnd = bean.getItalicEnd();
+                if (italicEnd!=null && italicEnd.length != 0) {
+                    output.write(italicEnd);
                 }
-                Log.d("dddddddddddddd",text+"(粗体："+bean.isBold()+"；斜体："+bean.isItalic()+"；下划线："+bean.isUnderline());
+                byte[] underlineEnd = bean.getUnderlineEnd();
+                if (underlineEnd!=null && underlineEnd.length != 0) {
+                    output.write(underlineEnd);
+                }
             } catch (IOException e) {
                 e.getLocalizedMessage();
             }

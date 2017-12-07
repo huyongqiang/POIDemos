@@ -1,5 +1,6 @@
 package com.jiangdg.poidemos.utils;
 
+import android.os.Environment;
 import android.util.Log;
 import android.util.Xml;
 
@@ -55,11 +56,15 @@ public class WordReadUtil2 {
     private String spanColor = "<span style=\"color:%s;\">", spanEnd = "</span>";
     private String divRight = "<div align=\"right\">", divEnd = "</div>";
     private String imgBegin = "<img src=\"%s\" >";
+    private boolean isEnter;
 
     public WordReadUtil2(String doc_name) {
         docPath = doc_name;
-        htmlPath = FileUtil.createFile("html", FileUtil.getFileName(docPath) + ".html");
-        Log.d(TAG, "htmlPath=" + htmlPath);
+        htmlPath = Environment.getExternalStorageDirectory() + "/test.html";
+        File file = new File(htmlPath);
+        if (file.exists()) {
+            file.delete();
+        }
         try {
             output = new FileOutputStream(new File(htmlPath));
             presentPicture = 0;
@@ -156,10 +161,13 @@ public class WordReadUtil2 {
                 switch (event_type) {
                     case XmlPullParser.START_TAG: // 开始标签
                         String tagBegin = xmlParser.getName();
-                        if (tagBegin.equalsIgnoreCase("r")) {
+                        if(isEnter) {
+                            Log.i("ddddd",tagBegin);
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("r")) {
                             isRegion = true;
                         }
-                        if (tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
+                        if (isEnter && tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
                             String align = xmlParser.getAttributeValue(0);
                             if (align.equals("center")) {
                                 output.write(centerBegin.getBytes());
@@ -170,84 +178,75 @@ public class WordReadUtil2 {
                                 isRight = true;
                             }
                         }
-                        if (tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
+                        if (isEnter && tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
                             String color = xmlParser.getAttributeValue(0);
                             output.write(String.format(spanColor, color).getBytes());
                             isColor = true;
                         }
-                        if (tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
+                        if (isEnter && tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
                             if (isRegion == true) {
                                 int size = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
                                 output.write(String.format(fontSizeTag, size).getBytes());
                                 isSize = true;
                             }
                         }
-                        if (tagBegin.equalsIgnoreCase("tbl")) { // 检测到表格
-                            output.write(tableBegin.getBytes());
-                            isTable = true;
-                        } else if (tagBegin.equalsIgnoreCase("tr")) { // 表格行
-                            output.write(rowBegin.getBytes());
-                        } else if (tagBegin.equalsIgnoreCase("tc")) { // 表格列
-                            output.write(columnBegin.getBytes());
-                        }
-                        if (tagBegin.equalsIgnoreCase("pic")) { // 检测到图片
-                            ZipEntry pic_entry = FileUtil.getPicEntry(docxFile, pic_ndex);
-                            if (pic_entry != null) {
-                                byte[] pictureBytes = FileUtil.getPictureBytes(docxFile, pic_entry);
-                                writeDocumentPicture(pictureBytes);
-                            }
-                            pic_ndex++; // 转换一张后，索引+1
-                        }
-                        if (tagBegin.equalsIgnoreCase("p") && !isTable) {// 检测到段落，如果在表格中就无视
+                        if (isEnter && tagBegin.equalsIgnoreCase("p")) {// 检测到段落，如果在表格中就无视
                             output.write(lineBegin.getBytes());
                         }
-                        if (tagBegin.equalsIgnoreCase("b")) { // 检测到加粗
+                        if (isEnter && tagBegin.equalsIgnoreCase("b")) { // 检测到加粗
                             isBold = true;
                         }
-                        if (tagBegin.equalsIgnoreCase("u")) { // 检测到下划线
+                        if (isEnter && tagBegin.equalsIgnoreCase("u")) { // 检测到下划线
                             isUnderline = true;
                         }
-                        if (tagBegin.equalsIgnoreCase("i")) { // 检测到斜体
+                        if (isEnter && tagBegin.equalsIgnoreCase("i")) { // 检测到斜体
                             isItalic = true;
                         }
                         // 检测到文本
                         if (tagBegin.equalsIgnoreCase("t")) {
-                            if (isBold == true) { // 加粗
+                            if (isEnter && isBold == true) { // 加粗
                                 output.write(boldBegin.getBytes());
                             }
-                            if (isUnderline == true) { // 检测到下划线，输入<u>
+                            if (isEnter && isUnderline == true) { // 检测到下划线，输入<u>
                                 output.write(underlineBegin.getBytes());
                             }
-                            if (isItalic == true) { // 检测到斜体，输入<i>
+                            if (isEnter && isItalic == true) { // 检测到斜体，输入<i>
                                 output.write(italicBegin.getBytes());
                             }
                             String text = xmlParser.nextText();
-                            output.write(text.getBytes()); // 写入文本
-                            if (isItalic == true) { // 输入斜体结束标签</i>
+                            if(isEnter) {
+                                Log.i("ddddd",text);
+                                output.write(text.getBytes()); // 写入文本
+                            }
+
+                            if ("参考文献：".equals(text)) {
+                                isEnter = true;
+                            }
+                            if (isEnter && isItalic == true) { // 输入斜体结束标签</i>
                                 output.write(italicEnd.getBytes());
                                 isItalic = false;
                             }
-                            if (isUnderline == true) { // 输入下划线结束标签</u>
+                            if (isEnter && isUnderline == true) { // 输入下划线结束标签</u>
                                 output.write(underlineEnd.getBytes());
                                 isUnderline = false;
                             }
-                            if (isBold == true) { // 输入加粗结束标签</b>
+                            if (isEnter && isBold == true) { // 输入加粗结束标签</b>
                                 output.write(boldEnd.getBytes());
                                 isBold = false;
                             }
-                            if (isSize == true) { // 输入字体结束标签</font>
+                            if (isEnter && isSize == true) { // 输入字体结束标签</font>
                                 output.write(fontEnd.getBytes());
                                 isSize = false;
                             }
-                            if (isColor == true) { // 输入跨度结束标签</span>
+                            if (isEnter && isColor == true) { // 输入跨度结束标签</span>
                                 output.write(spanEnd.getBytes());
                                 isColor = false;
                             }
-//						if (isCenter == true) { // 输入居中结束标签</center>。要在段落结束之前再输入该标签，因为该标签会强制换行
-//							output.write(centerEnd.getBytes());
-//							isCenter = false;
-//						}
-                            if (isRight == true) { // 输入区块结束标签</div>
+                            if (isEnter && isCenter == true) { // 输入居中结束标签</center>。要在段落结束之前再输入该标签，因为该标签会强制换行
+                                output.write(centerEnd.getBytes());
+                                isCenter = false;
+                            }
+                            if (isEnter && isRight == true) { // 输入区块结束标签</div>
                                 output.write(divEnd.getBytes());
                                 isRight = false;
                             }
@@ -256,17 +255,7 @@ public class WordReadUtil2 {
                     // 结束标签
                     case XmlPullParser.END_TAG:
                         String tagEnd = xmlParser.getName();
-                        if (tagEnd.equalsIgnoreCase("tbl")) { // 输入表格结束标签</table>
-                            output.write(tableEnd.getBytes());
-                            isTable = false;
-                        }
-                        if (tagEnd.equalsIgnoreCase("tr")) { // 输入表格行结束标签</tr>
-                            output.write(rowEnd.getBytes());
-                        }
-                        if (tagEnd.equalsIgnoreCase("tc")) { // 输入表格列结束标签</td>
-                            output.write(columnEnd.getBytes());
-                        }
-                        if (tagEnd.equalsIgnoreCase("p")) { // 输入段落结束标签</p>，如果在表格中就无视
+                        if (isEnter && tagEnd.equalsIgnoreCase("p")) { // 输入段落结束标签</p>，如果在表格中就无视
                             if (isTable == false) {
                                 if (isCenter == true) { // 输入居中结束标签</center>
                                     output.write(centerEnd.getBytes());
@@ -275,7 +264,7 @@ public class WordReadUtil2 {
                                 output.write(lineEnd.getBytes());
                             }
                         }
-                        if (tagEnd.equalsIgnoreCase("r")) {
+                        if (isEnter && tagEnd.equalsIgnoreCase("r")) {
                             isRegion = false;
                         }
                         break;
