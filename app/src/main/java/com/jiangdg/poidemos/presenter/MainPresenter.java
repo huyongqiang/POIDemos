@@ -2,6 +2,7 @@ package com.jiangdg.poidemos.presenter;
 
 import android.os.Environment;
 
+import com.jiangdg.poidemos.bean.word.ParseResultBean;
 import com.jiangdg.poidemos.bean.word.WordCharRunBean;
 import com.jiangdg.poidemos.model.IMainModel;
 import com.jiangdg.poidemos.model.MainModelImpl;
@@ -33,8 +34,8 @@ public class MainPresenter {
             public void run() {
                 mMainModel.getAllCharRuns(mMainView.getDocumentPath(), new IMainModel.OnParseResultListener() {
                     @Override
-                    public void onParseResult(List<WordCharRunBean> result) {
-                        if(result==null || result.size()==0) {
+                    public void onParseResult(ParseResultBean result) {
+                        if(result==null) {
                             mMainView.showShortToast("解析失败，判断是否文件为空");
                             return;
                         }

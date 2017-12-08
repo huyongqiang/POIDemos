@@ -1,5 +1,6 @@
 package com.jiangdg.poidemos.model;
 
+import com.jiangdg.poidemos.bean.word.ParseResultBean;
 import com.jiangdg.poidemos.bean.word.WordCharRunBean;
 import com.jiangdg.poidemos.bean.word.WordReferenceBean;
 
@@ -13,8 +14,11 @@ import java.util.List;
 
 public interface IMainModel {
     // 对外回调结果
+//    public interface OnParseResultListener {
+//        void onParseResult(List<WordCharRunBean> result);
+//    }
     public interface OnParseResultListener {
-        void onParseResult(List<WordCharRunBean> result);
+        void onParseResult(ParseResultBean result);
     }
 
     List<WordReferenceBean> getWordReference(String wordPath);

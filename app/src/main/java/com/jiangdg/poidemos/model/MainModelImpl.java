@@ -1,11 +1,15 @@
 package com.jiangdg.poidemos.model;
 
+import android.text.SpannableString;
+import android.util.Log;
 import android.util.Xml;
 
+import com.jiangdg.poidemos.bean.word.ParseResultBean;
 import com.jiangdg.poidemos.bean.word.WordCharRunBean;
 import com.jiangdg.poidemos.bean.word.WordReferenceBean;
 import com.jiangdg.poidemos.utils.Contants;
 import com.jiangdg.poidemos.utils.FileUtil;
+import com.jiangdg.poidemos.utils.SpannableStringUtil;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -24,8 +28,13 @@ import java.util.zip.ZipFile;
  */
 
 public class MainModelImpl implements IMainModel {
+    private SpannableStringUtil mSpannaleUtil;
+    private String color;
+    private int size;
 
-    private boolean isEnter = false;
+    public MainModelImpl() {
+        mSpannaleUtil = SpannableStringUtil.getInstance();
+    }
 
     @Override
     public List<WordReferenceBean> getWordReference(String wordPath) {
@@ -42,7 +51,7 @@ public class MainModelImpl implements IMainModel {
     public void getAllCharRuns(String wordPath, OnParseResultListener listener) {
         if (listener == null)
             return;
-        listener.onParseResult(readDocx(wordPath));
+        listener.onParseResult(readDOCX(wordPath));
     }
 
     /**
@@ -74,6 +83,7 @@ public class MainModelImpl implements IMainModel {
      */
     private List<WordCharRunBean> readDocx(String docxPath) {
         List<WordCharRunBean> charRunList = new ArrayList<>();
+        boolean isEnter = false;
         try {
             ZipFile docxFile = new ZipFile(new File(docxPath));
             ZipEntry sharedStringXML = docxFile.getEntry("word/document.xml");
@@ -87,33 +97,6 @@ public class MainModelImpl implements IMainModel {
                 switch (event_type) {
                     case XmlPullParser.START_TAG: // 开始标签
                         String tagBegin = xmlParser.getName();
-
-//                        if (isEnter && tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
-//                            String align = xmlParser.getAttributeValue(0);
-//                            if (align.equals("center")) {
-//                                runBean.setCenter(true);
-//                            }
-//                            if (align.equals("right")) {
-//                                runBean.setRight(true);
-//                            }
-//                        }
-//                        if (isEnter && tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
-//                            String color = xmlParser.getAttributeValue(0);
-//                            runBean.setTextColor(color);
-//                        }
-//                        if (isEnter && tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
-//                            int size = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
-//                            runBean.setTextSize(size);
-//                        }
-//                        if (isEnter && tagBegin.equalsIgnoreCase("b")) { // 检测到加粗
-//                            runBean.setBold(true);
-//                        }
-//                        if (isEnter && tagBegin.equalsIgnoreCase("u")) { // 检测到下划线
-//                            runBean.setUnderline(true);
-//                        }
-//                        if (isEnter && tagBegin.equalsIgnoreCase("i")) { // 检测到斜体
-//                            runBean.setItalic(true);
-//                        }
                         // 检测到文本
 //                        if (tagBegin.equalsIgnoreCase("t")) {
 //                            runBean = new WordCharRunBean();
@@ -145,6 +128,130 @@ public class MainModelImpl implements IMainModel {
             e.printStackTrace();
         }
         return charRunList;
+    }
+
+    private ParseResultBean readDOCX(String docxPath) {
+        ParseResultBean resultBean = new ParseResultBean();
+        boolean isEnter = false;
+        try {
+            ZipFile docxFile = new ZipFile(new File(docxPath));
+            ZipEntry sharedStringXML = docxFile.getEntry("word/document.xml");
+            InputStream inputStream = docxFile.getInputStream(sharedStringXML);
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setInput(inputStream, "utf-8");
+            boolean isTable = false; // 表格
+            boolean isSize = false; // 文字大小
+            boolean isColor = false; // 文字颜色
+            boolean isCenter = false; // 居中对齐
+            boolean isRight = false; // 靠右对齐
+            boolean isItalic = false; // 斜体
+            boolean isUnderline = false; // 下划线
+            boolean isBold = false; // 加粗
+            boolean isRegion = false; // 在那个区域中
+            int event_type = xmlParser.getEventType();
+            List<SpannableString> spannableList = new ArrayList<>();
+
+            while (event_type != XmlPullParser.END_DOCUMENT) {
+                switch (event_type) {
+                    case XmlPullParser.START_TAG: // 开始标签
+                        String tagBegin = xmlParser.getName();
+                        if(isEnter) {
+                            Log.i("ddddd",tagBegin);
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("r")) {
+                            isRegion = true;
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("jc")) { // 判断对齐方式
+                            String align = xmlParser.getAttributeValue(0);
+                            if (align.equals("center")) {
+                                isCenter = true;
+                            }
+                            if (align.equals("right")) {
+                                isRight = true;
+                            }
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
+                            color = xmlParser.getAttributeValue(0);
+                            Log.i("ddddd","color--->" + color);
+                            isColor = true;
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
+                            if (isRegion == true) {
+                                size  = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
+                                Log.i("ddddd","size--->" + size);
+                                isSize = true;
+                            }
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("b")) { // 检测到加粗
+                            isBold = true;
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("u")) { // 检测到下划线
+                            isUnderline = true;
+                        }
+                        if (isEnter && tagBegin.equalsIgnoreCase("i")) { // 检测到斜体
+                            isItalic = true;
+                        }
+                        // 检测到文本
+                        if (tagBegin.equalsIgnoreCase("t")) {
+                            String text = xmlParser.nextText();
+                            if(isEnter) {
+                                Log.i("ddddd",text);
+                                mSpannaleUtil.setSpanString(text);
+                            }
+
+                            if ("参考文献：".equals(text)) {
+                                isEnter = true;
+                            }
+                            if (isEnter && isBold == true) { // 加粗
+                                mSpannaleUtil.setBold();
+                                isBold = false;
+                            }
+                            if (isEnter && isUnderline == true) { // 检测到下划线
+                                mSpannaleUtil.setUnderLine();
+                                isUnderline = false;
+                            }
+                            if (isEnter && isItalic == true) { // 检测到斜体
+                                mSpannaleUtil.setItalic();
+                                isItalic = false;
+                            }
+                            if(isEnter && isColor) {        // 颜色
+                                mSpannaleUtil.setFrontColor(color);
+                                isColor = false;
+                            }
+                            if(isEnter && isSize) {         // 字体大小
+                                mSpannaleUtil.setFrontSize(size);
+                                isSize = false;
+                            }
+                            if(isEnter) {
+                                spannableList.add(mSpannaleUtil.getSpanString());
+                                resultBean.setSpanStrings(spannableList);
+                            }
+                        }
+
+                        break;
+                    // 结束标签
+                    case XmlPullParser.END_TAG:
+                        String tagEnd = xmlParser.getName();
+                        if (isEnter && tagEnd.equalsIgnoreCase("p")) { // 输入段落结束标签</p>，如果在表格中就无视
+                            if (isTable == false) {
+                                if (isCenter == true) { // 输入居中结束标签</center>
+                                    isCenter = false;
+                                }
+                            }
+                        }
+                        if (isEnter && tagEnd.equalsIgnoreCase("r")) {
+                            isRegion = false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                event_type = xmlParser.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultBean;
     }
 
     private int getSize(int sizeType) {

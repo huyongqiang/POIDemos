@@ -1,6 +1,7 @@
 package com.jiangdg.poidemos.utils;
 
 import android.os.Environment;
+import android.text.SpannableString;
 import android.util.Log;
 import android.util.Xml;
 
