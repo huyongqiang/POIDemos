@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -74,6 +75,8 @@ public class SpannableStringUtil {
     }
 
     public void setFrontColor(String color) {
+        if(spannableString == null)
+            return;
         setFrontColor(0, spannableString.length(), SpannableStringUtil.INDEX_START, color);
     }
 
@@ -92,6 +95,8 @@ public class SpannableStringUtil {
     }
 
     public void setBgColor(String color) {
+        if(spannableString == null)
+            return;
         setBgColor(0, spannableString.length(), SpannableStringUtil.INDEX_START, color);
     }
 
@@ -102,13 +107,23 @@ public class SpannableStringUtil {
      * flags 下标包含规则
      * frontSize 字体大小
      */
-    public void setFrontSize(int start, int end, int flags, float frontSize) {
-        RelativeSizeSpan sizeSpan = new RelativeSizeSpan(frontSize);
-        spannableString.setSpan(sizeSpan, start, end, flags);
+    public void setFrontSize(int start, int end, int flags, float frontSize,boolean isAbsoluteSizeSpan) {
+        if(isAbsoluteSizeSpan) {
+            // 设置字体大小，参数是绝对值，相当于Word的字体大小
+            AbsoluteSizeSpan abSizeSpan = new AbsoluteSizeSpan((int)frontSize);
+            spannableString.setSpan(abSizeSpan, start, end, flags);
+        } else {
+            // 设置字体大小，参数是相对于默认字体大小的倍数 x*proportion
+            // proportion>1即放大；proportion<1即放小
+            RelativeSizeSpan sizeSpan = new RelativeSizeSpan(frontSize);
+            spannableString.setSpan(sizeSpan, start, end, flags);
+        }
     }
 
-    public void setFrontSize(float frontSize) {
-        setFrontSize(0, spannableString.length(), SpannableStringUtil.INDEX_START, frontSize);
+    public void setFrontSize(float frontSize,boolean isAbsoluteSizeSpan) {
+        if(spannableString == null)
+            return;
+        setFrontSize(0, spannableString.length(), SpannableStringUtil.INDEX_START, frontSize,isAbsoluteSizeSpan);
     }
 
     /**
@@ -120,6 +135,8 @@ public class SpannableStringUtil {
     }
 
     public void setDeleteLine() {
+        if(spannableString == null)
+            return;
         setDeleteLine(0, spannableString.length(), SpannableStringUtil.INDEX_START);
     }
 
@@ -132,6 +149,8 @@ public class SpannableStringUtil {
     }
 
     public void setUnderLine() {
+        if(spannableString == null)
+            return;
         setUnderLine(0, spannableString.length(), SpannableStringUtil.INDEX_START);
     }
 

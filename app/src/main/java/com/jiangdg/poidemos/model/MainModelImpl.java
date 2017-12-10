@@ -11,9 +11,19 @@ import com.jiangdg.poidemos.utils.Contants;
 import com.jiangdg.poidemos.utils.FileUtil;
 import com.jiangdg.poidemos.utils.SpannableStringUtil;
 
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.usermodel.CharacterRun;
+import org.apache.poi.hwpf.usermodel.Paragraph;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.hwpf.usermodel.Table;
+import org.apache.poi.hwpf.usermodel.TableCell;
+import org.apache.poi.hwpf.usermodel.TableIterator;
+import org.apache.poi.hwpf.usermodel.TableRow;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,104 +40,83 @@ import java.util.zip.ZipFile;
 public class MainModelImpl implements IMainModel {
     private SpannableStringUtil mSpannaleUtil;
     private String color;
-    private int size;
+    private float size;
 
     public MainModelImpl() {
         mSpannaleUtil = SpannableStringUtil.getInstance();
     }
 
     @Override
-    public List<WordReferenceBean> getWordReference(String wordPath) {
+    public void getWordReference(String wordPath, OnParseResultListener listener) {
+        if (listener == null)
+            return;
         if (wordPath.endsWith("doc")) {
-            return readDoc(wordPath);
+            listener.onParseResult(readDOC(wordPath));
         } else if (wordPath.endsWith("docx")) {
-            return null;
-        } else {
-            return null;
+            listener.onParseResult(readDOCX(wordPath));
         }
     }
 
-    @Override
-    public void getAllCharRuns(String wordPath, OnParseResultListener listener) {
-        if (listener == null)
-            return;
-        listener.onParseResult(readDOCX(wordPath));
-    }
-
-    /**
-     * 使用POI解析dox格式文档
-     */
-    private List<WordReferenceBean> readDoc(String docPath) {
-        List<WordReferenceBean> refBeanList = new ArrayList<>();
-
-        return refBeanList;
-    }
-
-    /**
-     *  使用POI解析dox格式文档
-     * */
-//    private List<WordReferenceBean> readDocx(String docxPath){
-//        List<WordReferenceBean> refBeanList = new ArrayList<>();
-//        try {
-//            ZipFile docxFile = new ZipFile(new File(docxPath));
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return refBeanList;
-//    }
-
-    /**
-     * 使用POI解析dox格式文档
-     * 返回所有具有相同属性文本的段
-     */
-    private List<WordCharRunBean> readDocx(String docxPath) {
-        List<WordCharRunBean> charRunList = new ArrayList<>();
+    private ParseResultBean readDOC(String docPath) {
         boolean isEnter = false;
+        ParseResultBean resultBean = new ParseResultBean();;
         try {
-            ZipFile docxFile = new ZipFile(new File(docxPath));
-            ZipEntry sharedStringXML = docxFile.getEntry("word/document.xml");
-            InputStream inputStream = docxFile.getInputStream(sharedStringXML);
-            XmlPullParser xmlParser = Xml.newPullParser();
-            xmlParser.setInput(inputStream, "utf-8");
-            int event_type = xmlParser.getEventType();
+            FileInputStream in = new FileInputStream(docPath);
+            POIFSFileSystem pfs = new POIFSFileSystem(in);
+            HWPFDocument hwpf = new HWPFDocument(pfs);
+            Range range = hwpf.getRange();
 
-            while (event_type != XmlPullParser.END_DOCUMENT) {
-                WordCharRunBean runBean = null;
-                switch (event_type) {
-                    case XmlPullParser.START_TAG: // 开始标签
-                        String tagBegin = xmlParser.getName();
-                        // 检测到文本
-//                        if (tagBegin.equalsIgnoreCase("t")) {
-//                            runBean = new WordCharRunBean();
-//                            String text = xmlParser.nextText();
-//                            if (isEnter) {
-//                                runBean.setText(text);
-//                            }
-//                            // 整个文档中，根据"参考文献"标志找到参考文献部分
-//                            if ("参考文献：".equals(text)) {
-//                                isEnter = true;
-//                            }
-//                        }
-                        break;
-                    // 结束标签
-                    case XmlPullParser.END_TAG:
-                        break;
-                    default:
-                        break;
+            List<SpannableString> spannableList = new ArrayList<>();
+            int numParagraphs = range.numParagraphs();// 得到页面所有的段落数
+            for (int i = 0; i < numParagraphs; i++) { // 遍历段落数
+                // 得到文档中的每一个段落
+                Paragraph p = range.getParagraph(i);
+                // 读取每一段落中具有相同的属性的部分
+                int pnumCharacterRuns = p.numCharacterRuns();
+                for (int j = 0; j < pnumCharacterRuns; j++) {
+                    CharacterRun run = p.getCharacterRun(j);
+                    // 文本正文
+                    String text = run.text();
+                    if(isEnter) {
+                        Log.d("dddd","text = "+text);
+                        mSpannaleUtil.setSpanString(text);
+                    }
+                    if ("参考文献：".equals(text)) {
+                        isEnter = true;
+                    }
+
+                    // 文本的字体大小
+                    if(isEnter) {
+                        mSpannaleUtil.setFrontSize(run.getFontSize(),true);
+                        Log.d("dddd","run.getFontSize() = "+run.getFontSize());
+                    }
+                    // 文本字体颜色
+                    if(isEnter) {
+                        mSpannaleUtil.setFrontColor(getColor(run.getColor()));
+                    }
+                    // 粗体
+                    if (isEnter && run.isBold()) {
+                        mSpannaleUtil.setBold();
+                    }
+                    // 斜体
+                    if (isEnter && run.isItalic()) {
+                        mSpannaleUtil.setItalic();
+                    }
+                    // 删除线
+                    if(isEnter && run.isMarkedDeleted()) {
+                        mSpannaleUtil.setDeleteLine();
+                    }
+                    if (isEnter) {
+                        spannableList.add(mSpannaleUtil.getSpanString());
+                        resultBean.setSpanStrings(spannableList);
+                    }
                 }
-                if (isEnter && runBean != null) {
-                    charRunList.add(runBean);
-                }
-                // 解析下一个节点
-                event_type = xmlParser.next();
             }
-            // 结束获取
             isEnter = false;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return charRunList;
+        return resultBean;
     }
 
     private ParseResultBean readDOCX(String docxPath) {
@@ -155,8 +144,8 @@ public class MainModelImpl implements IMainModel {
                 switch (event_type) {
                     case XmlPullParser.START_TAG: // 开始标签
                         String tagBegin = xmlParser.getName();
-                        if(isEnter) {
-                            Log.i("ddddd",tagBegin);
+                        if (isEnter) {
+                            Log.i("ddddd", tagBegin);
                         }
                         if (isEnter && tagBegin.equalsIgnoreCase("r")) {
                             isRegion = true;
@@ -172,13 +161,14 @@ public class MainModelImpl implements IMainModel {
                         }
                         if (isEnter && tagBegin.equalsIgnoreCase("color")) { // 判断文字颜色
                             color = xmlParser.getAttributeValue(0);
-                            Log.i("ddddd","color--->" + color);
+                            Log.i("ddddd", "color--->" + color);
                             isColor = true;
                         }
                         if (isEnter && tagBegin.equalsIgnoreCase("sz")) { // 判断文字大小
                             if (isRegion == true) {
-                                size  = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
-                                Log.i("ddddd","size--->" + size);
+//                                size = Integer.valueOf(xmlParser.getAttributeValue(0));
+                                size = getSize(Integer.valueOf(xmlParser.getAttributeValue(0)));
+                                Log.i("ddddd", "size--->" + Integer.valueOf(xmlParser.getAttributeValue(0)));
                                 isSize = true;
                             }
                         }
@@ -194,8 +184,8 @@ public class MainModelImpl implements IMainModel {
                         // 检测到文本
                         if (tagBegin.equalsIgnoreCase("t")) {
                             String text = xmlParser.nextText();
-                            if(isEnter) {
-                                Log.i("ddddd",text);
+                            if (isEnter) {
+                                Log.i("ddddd", text);
                                 mSpannaleUtil.setSpanString(text);
                             }
 
@@ -214,15 +204,15 @@ public class MainModelImpl implements IMainModel {
                                 mSpannaleUtil.setItalic();
                                 isItalic = false;
                             }
-                            if(isEnter && isColor) {        // 颜色
+                            if (isEnter && isColor) {        // 颜色
                                 mSpannaleUtil.setFrontColor(color);
                                 isColor = false;
                             }
-                            if(isEnter && isSize) {         // 字体大小
-                                mSpannaleUtil.setFrontSize(size);
+                            if (isEnter && isSize) {         // 字体大小
+                                mSpannaleUtil.setFrontSize(size, false);
                                 isSize = false;
                             }
-                            if(isEnter) {
+                            if (isEnter) {
                                 spannableList.add(mSpannaleUtil.getSpanString());
                                 resultBean.setSpanStrings(spannableList);
                             }
@@ -254,23 +244,52 @@ public class MainModelImpl implements IMainModel {
         return resultBean;
     }
 
-    private int getSize(int sizeType) {
-        if (sizeType >= 1 && sizeType <= 8) {
-            return 1;
-        } else if (sizeType >= 9 && sizeType <= 11) {
-            return 2;
-        } else if (sizeType >= 12 && sizeType <= 14) {
-            return 3;
-        } else if (sizeType >= 15 && sizeType <= 19) {
-            return 4;
-        } else if (sizeType >= 20 && sizeType <= 29) {
-            return 5;
-        } else if (sizeType >= 30 && sizeType <= 39) {
-            return 6;
-        } else if (sizeType >= 40) {
-            return 7;
+    private float getSize(int sizeType) {
+        // 相对值
+        if (sizeType >= 32) {
+            return (float) 1.4;
+        } else if (sizeType == 30) {
+            return (float) 1.3;
+        } else if (sizeType == 28) {
+            return (float) 1.2;
+        } else if (sizeType == 24) {
+            return (float) 1.1;
+        } else if (sizeType == 18) {
+            return (float) 0.9;
+        } else if (sizeType == 15) {
+            return (float) 0.8;
+        } else if (sizeType == 13) {
+            return (float) 0.7;
+        } else if (sizeType == 11) {
+            return (float) 0.6;
         } else {
-            return 3;
+            return (float) 0.5;
+        }
+    }
+
+    private String getColor(int colorType) {
+        if (colorType == 1) {
+            return "#000000";
+        } else if (colorType == 2) {
+            return "#0000FF";
+        } else if (colorType == 3 || colorType == 4) {
+            return "#00FF00";
+        } else if (colorType == 5 || colorType == 6) {
+            return "#FF0000";
+        } else if (colorType == 7) {
+            return "#FFFF00";
+        } else if (colorType == 8) {
+            return "#FFFFFF";
+        } else if (colorType == 9 || colorType == 15) {
+            return "#CCCCCC";
+        } else if (colorType == 10 || colorType == 11) {
+            return "#00FF00";
+        } else if (colorType == 12 || colorType == 16) {
+            return "#080808";
+        } else if (colorType == 13 || colorType == 14) {
+            return "#FFFF00";
+        } else {
+            return "#000000";
         }
     }
 }

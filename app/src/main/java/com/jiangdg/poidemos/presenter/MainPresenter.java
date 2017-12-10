@@ -32,7 +32,7 @@ public class MainPresenter {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mMainModel.getAllCharRuns(mMainView.getDocumentPath(), new IMainModel.OnParseResultListener() {
+                mMainModel.getWordReference(mMainView.getDocumentPath(), new IMainModel.OnParseResultListener() {
                     @Override
                     public void onParseResult(ParseResultBean result) {
                         if(result==null) {

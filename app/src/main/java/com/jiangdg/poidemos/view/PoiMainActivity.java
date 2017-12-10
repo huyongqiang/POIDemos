@@ -59,7 +59,7 @@ public class PoiMainActivity extends AppCompatActivity implements IMainView {
 
     private MainPresenter mPresenter;
     String wordPath = Environment.getExternalStorageDirectory().getAbsolutePath() +
-            File.separator + "test.docx";
+            File.separator + "test1.docx";
     private FileOutputStream output;
 
     private Handler mHandler = new Handler() {
@@ -97,7 +97,6 @@ public class PoiMainActivity extends AppCompatActivity implements IMainView {
                 if (mPresenter != null) {
                     mPresenter.fetchData();
                 }
-//                new WordReadUtil2(wordPath);
                 break;
             default:
                 break;

@@ -14,14 +14,9 @@ import java.util.List;
 
 public interface IMainModel {
     // 对外回调结果
-//    public interface OnParseResultListener {
-//        void onParseResult(List<WordCharRunBean> result);
-//    }
     public interface OnParseResultListener {
         void onParseResult(ParseResultBean result);
     }
 
-    List<WordReferenceBean> getWordReference(String wordPath);
-
-    void getAllCharRuns(String wordPath, MainModelImpl.OnParseResultListener listener);
+    void getWordReference(String wordPath, MainModelImpl.OnParseResultListener listener);
 }
